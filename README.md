@@ -69,6 +69,7 @@ public class SomeObject {
   }
 }
 ```
+> Note: You need to use `-parameters` javac option to compile, which makes argument name as the default GraphQL name. Otherwise, you will need to add the `@GraphQLName("value")` annotation to specify one.
 
 You can also inject `DataFetchingEnvironment` as an argument, at any position:
 
@@ -91,7 +92,7 @@ public String field(@GraphQLName("val") String value) {
 }
 ```
 
-In addition, `@GraphQLDefaultValue` can be used to set a default value to a parameter. Due to limitations of annotations, the default valueu has to be provided by a class that implements `Supplier<Object>`:
+In addition, `@GraphQLDefaultValue` can be used to set a default value to a parameter. Due to limitations of annotations, the default value has to be provided by a class that implements `Supplier<Object>`:
 
 ```java
 public static class DefaultValue implements Supplier<Object> {
@@ -118,10 +119,21 @@ By default, standard GraphQL types (String, Integer, Long, Float, Boolean, Enum,
 
 Stream type is also supported and treated as a list.
 
-If you want to register an additional type (for example, UUID), you have to implement `TypeFunction` for it and register it with `DefaultTypeFunction`:
+If you want to register an additional type (for example, UUID), you have to create a new class implementing `TypeFunction` for it:
 
 ```java
-DefaultTypeFunction.register(UUID.class, new UUIDTypeFunction());
+public class UUIDTypeFunction implements TypeFunction {
+    ...
+}
+```
+
+And register it with `GraphQLAnnotations`:
+
+```java
+GraphQLAnnotations.register(new UUIDTypeFunction())
+
+// or if not using a static version of GraphQLAnnotations:
+// new GraphQLAnnotations().registerType(new UUIDTypeFunction())
 ```
 
 You can also specify custom type function for any field with `@GraphQLType` annotation.
