@@ -1,7 +1,6 @@
 buildscript {
     repositories {
-        jcenter()
-        mavenCentral()
+       maven { url "${geico_repo_url}" }
     }
     dependencies {
         classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.5.3"
@@ -60,7 +59,7 @@ jar {
 }
 
 repositories {
-    mavenCentral()
+    maven { url "${geico_repo_url}" }
 }
 
 gradle.projectsEvaluated {
@@ -116,6 +115,15 @@ modifyPom {
  }
 
 publishing {
+  repositories {
+    maven {
+      credentials {
+        username project.hasProperty('geico_repo_username') ? geico_repo_username : ""
+        password project.hasProperty('geico_repo_password') ? geico_repo_password : ""
+      }
+      url "${geico_repo_base_url}/maven-${project.version =~ /-(SNAPSHOT)/ ? 'snapshots' : 'releases'}"
+    }
+  }
     publications {
         MyPublication(MavenPublication) {
             from components.java
